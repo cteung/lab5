@@ -34,3 +34,62 @@ function sortObjArray(objArray, propName) {
     });
 } //sortObjArray()
 
+/*Render employee entries
+    entries     array of contacts
+*/
+function render(entries) {
+    var template = $(".template");
+    var addressbook = $(".address-book");
+    //for fade in effect
+    addressbook.hide();
+    //for different sorts
+    addressbook.empty();
+
+    //for each person in the passed array of entries
+    entries.forEach(function(person){
+        var cloned = template.clone();
+        addressbook.append(cloned);
+        //for each property of the person
+        //key = property
+        $.each(person, function(key, value) {
+            //special case for pic property
+            if (key != "pic"){
+                cloned.find($("."+key)).html(value);
+            }else{
+                cloned.find($(".pic")).attr("src", value);
+            }
+        });
+        //reviels the contact on the page
+        cloned.removeClass("template");
+    });
+    addressbook.fadeIn("slow");
+}
+
+//Sorting event handler
+$(".sort-ui .btn").click(function() {
+    //clicked button
+    var sortBtn = $(this);
+    var clicked = sortBtn.attr("data-sortby");
+    sortObjArray(Employees.entries, clicked);
+    //Renders contacts with new sort order
+    render(Employees.entries);
+
+    //assignes active sort satsus to corresponding button
+    sortBtn.siblings(".active").removeClass("active");
+    sortBtn.addClass("active");
+});
+
+//On load
+$(function() {
+    //initail sorted list
+    sortObjArray(Employees.entries, "last");
+    render(Employees.entries);
+
+    //Popovers
+    $('.sort-ui .btn').popover({
+        content: 'Click to Resort',
+        container: 'body',
+        trigger: 'hover',
+        placement: 'bottom'
+    });
+});
